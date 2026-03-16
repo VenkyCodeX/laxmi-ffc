@@ -149,7 +149,10 @@ async function loadOrderHistory() {
   list.innerHTML = '<div class="oh-loading"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>';
 
   try {
-    const res  = await fetch(PROFILE_API + '/by-phone/' + user.phone);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    const res  = await fetch(PROFILE_API + '/by-phone/' + user.phone, { signal: controller.signal });
+    clearTimeout(timeout);
     const data = await res.json();
 
     if (!data.length) {
@@ -187,12 +190,13 @@ async function loadOrderHistory() {
           </div>
         </div>`;
     }).join('');
-  } catch {
+  } catch (err) {
+    const isTimeout = err.name === 'AbortError';
     list.innerHTML = `
       <div class="oh-empty">
-        <i class="fas fa-wifi"></i>
-        <p>Could not load orders</p>
-        <span>Check your internet connection</span>
+        <i class="fas fa-${isTimeout ? 'hourglass-half' : 'wifi'}"></i>
+        <p>${isTimeout ? 'Server is waking up...' : 'Could not load orders'}</p>
+        <span>${isTimeout ? 'Free server takes ~30s to start. Please retry.' : 'Check your internet connection'}</span>
         <button class="btn btn-primary oh-menu-btn" onclick="loadOrderHistory()"><i class="fas fa-sync-alt"></i> Retry</button>
       </div>`;
   }

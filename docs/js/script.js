@@ -502,11 +502,15 @@ async function submitOrder(e) {
   appliedCoupon = null;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     const res  = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
+      body: JSON.stringify(orderData),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
     const data = await res.json();
     if (data.success) {
       closeModal();
@@ -517,7 +521,7 @@ async function submitOrder(e) {
     } else {
       showToast(data.error || 'Order failed. Try again.');
     }
-  } catch {
+  } catch (err) {
     closeModal();
     playOrderSound();
     showSuccessFallback(customerName, phoneNumber, address);
@@ -679,7 +683,10 @@ async function fetchMyOrders() {
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
   btn.disabled  = true;
   try {
-    const res  = await fetch(BACKEND + '/api/orders/by-phone/' + phone);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    const res  = await fetch(BACKEND + '/api/orders/by-phone/' + phone, { signal: controller.signal });
+    clearTimeout(timeout);
     const data = await res.json();
     localStorage.setItem('lff_phone', phone);
     list.innerHTML = data.length
@@ -692,8 +699,9 @@ async function fetchMyOrders() {
             <i class="fas fa-utensils"></i> Order Now
           </button>
         </div>`;
-  } catch {
-    list.innerHTML = `<div class="my-orders-empty"><i class="fas fa-wifi"></i><p>Could not connect. Check your internet.</p></div>`;
+  } catch (err) {
+    const isTimeout = err.name === 'AbortError';
+    list.innerHTML = `<div class="my-orders-empty"><i class="fas fa-${isTimeout ? 'hourglass-half' : 'wifi'}"></i><p>${isTimeout ? 'Server waking up... Retry in 30s' : 'Could not connect. Check your internet.'}</p><button class="btn btn-primary" style="margin-top:12px" onclick="fetchMyOrders()"><i class="fas fa-sync-alt"></i> Retry</button></div>`;
   } finally {
     btn.innerHTML = '<i class="fas fa-search"></i>';
     btn.disabled  = false;
