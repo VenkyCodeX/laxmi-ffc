@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Laxmi Fast Food – Shankar Nagar</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/menu.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="nav-logo">
+      <img src="assets/Logo.png" alt="Laxmi Fast Food Logo" class="nav-logo-img"/>
+      <span class="nav-logo-text"><span class="logo-full">LAXMI FAST FOOD</span><span class="logo-short">LAXMI FF</span></span>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Home</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="lang-toggle-btn" id="langToggleBtn" onclick="toggleLanguage()"><span class="lang-icon">🌐</span><span class="lang-text"> हिंदी</span></button>
+    <button class="my-orders-btn" onclick="openMyOrders()"><i class="fas fa-receipt"></i> My Orders</button>
+    <button class="user-logout-btn" id="userLogoutBtn" onclick="logoutUser()" style="display:none"><i class="fas fa-sign-out-alt"></i> <span id="userLogoutName"></span></button>
+    <a href="profile.html" class="profile-nav-btn"><i class="fas fa-user-circle"></i> Profile</a>
+    <button class="cart-nav-btn nav-cart-desktop" id="cartNavBtn" onclick="toggleCart()">
+      <i class="fas fa-shopping-bag"></i>
+      <span class="cart-nav-count" id="cartNavCount">0</span>
+    </button>
+    <div class="hamburger" id="hamburger"><i class="fas fa-bars"></i></div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <div class="hero-video-wrap">
+      <video autoplay muted loop playsinline id="heroVideo">
+        <source src="assets/Video Project.mp4" type="video/mp4"/>
+      </video>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content" data-aos="fade-up">
+      <div class="hero-badge"><span>🌶️</span> Street Food Since 2025</div>
+      <h1 class="hero-title">LAXMI<br/><span>FAST FOOD</span></h1>
+      <p class="hero-tagline">Hot &amp; Spicy Street Food in <strong>Shankar Nagar</strong></p>
+      <div class="hero-btns">
+        <a href="#menu" class="btn btn-primary"><i class="fas fa-utensils"></i> View Menu</a>
+        <button class="btn btn-whatsapp" onclick="toggleCart()"><i class="fas fa-shopping-bag"></i> Order Now</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span>500+</span><p>Happy Customers</p></div>
+        <div class="stat"><span>20+</span><p>Menu Items</p></div>
+        <div class="stat"><span>10+</span><p>Years of Taste</p></div>
+      </div>
+    </div>
+    <div class="scroll-indicator"><i class="fas fa-chevron-down"></i></div>
+  </section>
+
+  <!-- SHOP STATUS BAR -->
+  <div class="shop-status-bar" id="shopStatusBar">
+    <div class="shop-status-inner">
+      <span class="shop-status-dot" id="shopDot"></span>
+      <span id="shopStatusText">Checking hours...</span>
+      <span class="shop-hours">⏰ Open: 11:00 AM – 11:00 PM</span>
+    </div>
+    <div class="shop-utils">
+      <a href="tel:+9321611315" class="util-btn"><i class="fas fa-phone-alt"></i> Call Now</a>
+      <a href="https://wa.me/9321611315" target="_blank" class="util-btn util-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      <a href="https://maps.google.com/?q=Shankar+Nagar,Raipur,Chhattisgarh" target="_blank" class="util-btn util-map"><i class="fas fa-map-marker-alt"></i> Location</a>
+    </div>
+  </div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span>🍜 Chicken Noodles</span><span>🍳 Egg Fried Rice</span><span>🌶️ Chilli Chicken</span>
+      <span>🍗 Chicken 65</span><span>🥡 Veg Manchurian</span><span>🥤 Cool Drinks</span>
+      <span>🍜 Chicken Noodles</span><span>🍳 Egg Fried Rice</span><span>🌶️ Chilli Chicken</span>
+      <span>🍗 Chicken 65</span><span>🥡 Veg Manchurian</span><span>🥤 Cool Drinks</span>
+    </div>
+  </div>
+
+  <!-- DAILY SPECIAL BANNER -->
+  <div class="daily-special" data-aos="fade-up">
+    <div class="special-inner">
+      <div class="special-badge">🌟 TODAY'S SPECIAL</div>
+      <div class="special-text">
+        <span class="special-name">Chicken Fried Rice</span>
+        <span class="special-price">₹90</span>
+      </div>
+      <button class="btn btn-primary special-btn" onclick="addToCart('Chicken Fried Rice',90)"><i class="fas fa-plus"></i> Add to Cart</button>
+    </div>
+  </div>
+
+
+
+  <!-- POPULAR DISHES -->
+  <section id="menu" class="popular-section section section-dark">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-tag">Most Loved</span>
+      <h2>POPULAR <span>DISHES</span></h2>
+    </div>
+    <div class="popular-grid" data-aos="fade-up">
+      <div class="popular-card" onclick="addToCart('Chicken Fried Rice',90)">
+        <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=300&q=80" alt="Chicken Fried Rice"/>
+        <div class="popular-info">
+          <span class="popular-rank">🥇</span>
+          <h4>Chicken Fried Rice</h4>
+          <span class="popular-price">₹90</span>
+        </div>
+      </div>
+      <div class="popular-card" onclick="addToCart('Chicken 65',120)">
+        <img src="https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?w=300&q=80" alt="Chicken 65"/>
+        <div class="popular-info">
+          <span class="popular-rank">🥈</span>
+          <h4>Chicken 65</h4>
+          <span class="popular-price">₹120</span>
+        </div>
+      </div>
+      <div class="popular-card" onclick="addToCart('Chilli Chicken',130)">
+        <img src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=300&q=80" alt="Chilli Chicken"/>
+        <div class="popular-info">
+          <span class="popular-rank">🥉</span>
+          <h4>Chilli Chicken</h4>
+          <span class="popular-price">₹130</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CART SIDEBAR -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3><i class="fas fa-shopping-bag"></i> Your Order</h3>
+      <button class="cart-close" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty"><i class="fas fa-bowl-food"></i><p>Your cart is empty</p><span>Add items from the menu</span></div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>Total</span>
+        <span class="cart-total-amt" id="cartTotalAmt">₹0</span>
+      </div>
+      <button class="btn btn-primary w-full" onclick="showOrderForm()"><i class="fas fa-paper-plane"></i> Place Order</button>
+    </div>
+  </div>
+
+  <!-- ORDER FORM MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="order-modal" id="orderModal">
+      <div class="modal-header">
+        <h3><i class="fas fa-receipt"></i> Complete Your Order</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="order-summary" id="orderSummary"></div>
+        <!-- SAVED PROFILE BANNER -->
+        <div id="savedProfileBanner" style="display:none" class="saved-profile-banner">
+          <div class="spb-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+              <div id="spbName" class="spb-name"></div>
+              <div id="spbPhone" class="spb-phone"></div>
+            </div>
+          </div>
+          <button class="spb-edit-btn" onclick="toggleProfileEdit()"><i class="fas fa-pen"></i> Edit</button>
+        </div>
+
+        <form id="orderForm" onsubmit="submitOrder(event)">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> Your Name</label>
+            <input type="text" id="custName" placeholder="Enter your full name"/>
+          </div>
+
+          <div class="form-group">
+            <label><i class="fas fa-phone"></i> Phone Number</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="tel" id="custPhone" placeholder="10-digit mobile number" maxlength="10" style="flex:1"/>
+              <button type="button" class="btn btn-primary" id="sendOtpBtn" onclick="sendOTP()" style="white-space:nowrap;padding:12px 14px;font-size:0.85rem">
+                <i class="fas fa-sms"></i> Send OTP
+              </button>
+            </div>
+          </div>
+
+          <!-- OTP ROW -->
+          <div class="form-group" id="otpRow" style="display:none">
+            <label><i class="fas fa-key"></i> Enter OTP <span id="otpStatus" style="font-size:0.8rem;margin-left:8px"></span></label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="otpInput" placeholder="6-digit OTP" maxlength="6" inputmode="numeric"
+                style="flex:1;letter-spacing:6px;font-size:1.3rem;text-align:center;font-weight:700"/>
+              <button type="button" class="btn btn-primary" id="verifyOtpBtn" onclick="verifyOTP()" style="padding:12px 14px;font-size:0.85rem">
+                <i class="fas fa-check"></i> Verify
+              </button>
+            </div>
+            <button type="button" onclick="sendOTP()" style="background:none;border:none;color:#ff6b35;font-size:0.82rem;cursor:pointer;padding:4px 0;margin-top:4px">
+              <i class="fas fa-redo"></i> Resend OTP
+            </button>
+          </div>
+
+          <div class="form-group" id="addressRow" style="display:none">
+            <label style="justify-content:space-between">
+              <span><i class="fas fa-map-marker-alt"></i> Delivery Address</span>
+              <button type="button" class="loc-btn" onclick="useMyLocation()"><i class="fas fa-crosshairs"></i> Use Location</button>
+            </label>
+            <textarea id="custAddress" placeholder="Enter your full delivery address" rows="3"></textarea>
+          </div>
+
+          <!-- COUPON ROW -->
+          <div class="form-group" id="couponRow" style="display:none">
+            <label><i class="fas fa-tag"></i> Coupon Code <span id="couponMsg" style="font-size:11px;margin-left:8px"></span></label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="couponInput" placeholder="Enter coupon code" style="flex:1;text-transform:uppercase"/>
+              <button type="button" class="btn btn-primary" onclick="applyCoupon()" style="padding:12px 14px;font-size:0.85rem;white-space:nowrap">
+                <i class="fas fa-check"></i> Apply
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full" id="submitBtn" style="display:none">
+            <i class="fas fa-check-circle"></i> Confirm Order
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div class="modal-overlay" id="myOrdersOverlay">
+    <div class="order-modal" id="myOrdersModal">
+      <div class="modal-header">
+        <h3><i class="fas fa-receipt"></i> My Orders Today</h3>
+        <button class="modal-close" onclick="closeMyOrders()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Enter your phone number</label>
+          <div style="display:flex;gap:10px">
+            <input type="tel" id="myOrdersPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10" style="flex:1"/>
+            <button class="btn btn-primary" onclick="fetchMyOrders()" id="myOrdersBtn" style="padding:12px 18px;border-radius:10px"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <div id="myOrdersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div class="modal-overlay" id="successOverlay">
+    <div class="success-modal">
+      <div class="success-icon">✅</div>
+      <h3>Order Placed!</h3>
+      <p id="successMsg">Your order has been received. We'll prepare it fresh for you!</p>
+      <div class="order-id-display" id="orderIdDisplay"></div>
+      <div class="prep-time-display" id="prepTimeDisplay"></div>
+      <div class="order-status-track" id="orderStatusTrack">
+        <div class="track-step active" id="track0"><i class="fas fa-check-circle"></i><span>Order Received</span></div>
+        <div class="track-step" id="track1"><i class="fas fa-fire"></i><span>Preparing</span></div>
+        <div class="track-step" id="track2"><i class="fas fa-bell"></i><span>Ready</span></div>
+        <div class="track-step" id="track3"><i class="fas fa-flag-checkered"></i><span>Completed</span></div>
+      </div>
+      <div class="success-btns">
+        <button class="btn btn-primary" onclick="closeSuccess()">Continue Browsing</button>
+        <a id="waConfirm" href="#" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Confirm on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE ORDER TRACKER -->
+  <div id="liveTracker">
+    <div class="tracker-header">
+      <span>🔥 LIVE ORDER STATUS</span>
+      <button class="tracker-close" onclick="closeTracker()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="tracker-id" id="trackerOrderId"></div>
+    <div class="tracker-steps">
+      <div class="tracker-step" id="ts0"><i class="fas fa-check-circle"></i><span>Received</span></div>
+      <div class="tracker-step" id="ts1"><i class="fas fa-fire"></i><span>Preparing</span></div>
+      <div class="tracker-step" id="ts2"><i class="fas fa-bell"></i><span>Ready</span></div>
+      <div class="tracker-step" id="ts3"><i class="fas fa-flag-checkered"></i><span>Done</span></div>
+    </div>
+    <div class="tracker-eta" id="trackerEta"></div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="orderToast" class="order-toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">Item added!</span>
+  </div>
+
+  <!-- FLOATING CART (hidden on mobile, bottom nav handles it) -->
+  <div class="floating-cart" id="floatingCart" onclick="toggleCart()">
+    <i class="fas fa-shopping-bag"></i>
+    <span class="cart-float-count" id="cartFloatCount">0</span>
+  </div>
+
+  <!-- GALLERY -->
+  <section id="gallery" class="section section-dark">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-tag">Visual Feast</span>
+      <h2>FOOD <span>GALLERY</span></h2>
+      <p>A glimpse into our kitchen and delicious creations</p>
+    </div>
+    <div class="gallery-grid" data-aos="fade-up">
+      <div class="gallery-item tall">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80" alt="Food spread" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80" alt="Noodles" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&q=80" alt="Fried Rice" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item wide">
+        <img src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=600&q=80" alt="Chilli Chicken" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?w=400&q=80" alt="Chicken 65" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&q=80" alt="Manchurian" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item tall">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" alt="Restaurant" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80" alt="Drinks" loading="lazy"/>
+        <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="lightbox">
+    <span class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></span>
+    <img id="lightboxImg" src="" alt="Gallery preview"/>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about" class="section">
+    <div class="about-container" data-aos="fade-up">
+      <div class="about-img-wrap">
+        <div class="owner-slider">
+          <div class="owner-track">
+            <img src="assets/boss_pic1.webp" alt="Ramesh Yadav - Owner" class="owner-slide"/>
+            <img src="assets/boss_pic2.webp" alt="Ramesh Yadav - Owner" class="owner-slide"/>
+          </div>
+        </div>
+        <div class="about-img-badge">🏆 6+ Months</div>
+      </div>
+      <div class="about-text">
+        <span class="section-tag">Our Story</span>
+        <h2>ABOUT <span>US</span></h2>
+        <p>Born from a passion for business, Laxmi Fast Food was started in Shankar Nagar with a vision to serve tasty and affordable fast food to the local community.</p>
+
+<p>Founded by <strong>Dandalwar Santosh Bhimrao</strong>, Laxmi Fast Food began as a small setup and continues to grow with the love and support of customers. With dedication and quality service, the goal is to expand and open more branches of Laxmi Fast Food in the future.</p>
+        <ul class="about-features">
+          <li><i class="fas fa-fire"></i> Freshly cooked every order</li>
+          <li><i class="fas fa-leaf"></i> Quality ingredients only</li>
+          <li><i class="fas fa-heart"></i> Made with love &amp; spice</li>
+          <li><i class="fas fa-star"></i> 500+ happy customers daily</li>
+        </ul>
+        <a href="https://wa.me/9321611315" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat With Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORDER CTA -->
+  <section class="order-cta">
+    <div class="cta-particles" id="ctaParticles"></div>
+    <div class="cta-content" data-aos="zoom-in">
+      <h2>HUNGRY? <span>ORDER NOW!</span></h2>
+      <p>Add items to your cart and place your order in seconds</p>
+      <button class="btn btn-whatsapp btn-xl" onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">
+        <i class="fas fa-utensils"></i> Browse Menu
+      </button>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section section-dark">
+    <div class="section-header" data-aos="fade-up">
+      <span class="section-tag">Find Us</span>
+      <h2>GET IN <span>TOUCH</span></h2>
+    </div>
+    <div class="contact-container" data-aos="fade-up">
+      <div class="contact-info">
+        <div class="contact-card">
+          <i class="fas fa-map-marker-alt"></i>
+          <h4>Location</h4>
+          <p>Shankar Nagar, Raipur,<br/>Chhattisgarh – 492007</p>
+        </div>
+        <div class="contact-card">
+          <i class="fas fa-phone-alt"></i>
+          <h4>Phone</h4>
+          <p><a href="tel:+9321611315">+91 9321611315</a></p>
+        </div>
+        <div class="contact-card">
+          <i class="fas fa-clock"></i>
+          <h4>Hours</h4>
+          <p>Mon – Sun<br/>11:00 AM – 11:00 PM</p>
+        </div>
+        <div class="contact-card">
+          <i class="fab fa-whatsapp"></i>
+          <h4>WhatsApp</h4>
+          <p><a href="https://wa.me/9321611315" target="_blank" rel="noopener noreferrer">Chat to Order</a></p>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.862!2d81.6296!3d21.2514!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a28dda5a5a5a5a5%3A0x0!2sShankar+Nagar%2C+Raipur!5e0!3m2!1sen!2sin!4v1700000000000"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Laxmi Fast Food Location">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <img src="assets/Logo.png" alt="Laxmi Fast Food" class="footer-logo-img"/>
+        LAXMI FAST FOOD
+      </div>
+      <p>Hot &amp; Spicy Street Food in Shankar Nagar</p>
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#menu">Menu</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="footer-social">
+        <a href="https://wa.me/9321611315" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      </div>
+      <p class="footer-copy">© 2024 Laxmi Fast Food. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a href="index.html" class="bnav-item active">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    <a href="menu.html" class="bnav-item">
+      <i class="fas fa-utensils"></i><span>Menu</span>
+    </a>
+    <button class="bnav-item" onclick="window.location.href='menu.html'">
+      <i class="fas fa-search"></i><span>Search</span>
+    </button>
+    <button class="bnav-item" onclick="toggleCart()">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Cart</span>
+      <span class="bnav-cart-count" id="bnavCartCount" style="display:none">0</span>
+    </button>
+    <a href="track.html" class="bnav-item">
+      <i class="fas fa-search-location"></i><span>Track</span>
+    </a>
+    <a href="profile.html" class="bnav-item">
+      <i class="fas fa-user"></i><span>Profile</span>
+    </a>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    // Owner image slider
+    const ownerTrack = document.querySelector('.owner-track');
+    const ownerSlides = document.querySelectorAll('.owner-slide');
+    if (ownerTrack && ownerSlides.length) {
+      let cur = 0;
+      setInterval(() => {
+        cur = (cur + 1) % ownerSlides.length;
+        ownerTrack.style.transform = `translateX(-${cur * 100}%)`;
+      }, 5000);
+    }
+
+    // Auto-update shop duration
+    (function() {
+      const opened = new Date(2024, 10, 1); // November 2024
+      const now = new Date();
+      const months = (now.getFullYear() - opened.getFullYear()) * 12 + (now.getMonth() - opened.getMonth());
+      const label = months < 12 ? `${months}+ Months` : `${Math.floor(months / 12)}+ Years`;
+      document.querySelectorAll('.about-img-badge').forEach(el => el.textContent = '🏆 ' + label);
+      document.querySelectorAll('.stat span').forEach((el, i) => { if (i === 2) el.textContent = months < 12 ? months + '+' : Math.floor(months/12) + '+'; });
+      document.querySelectorAll('.stat p').forEach((el, i) => { if (i === 2) el.textContent = months < 12 ? 'Months of Taste' : 'Years of Taste'; });
+      document.querySelectorAll('.about-features li').forEach(li => {
+        if (li.textContent.includes('Years') || li.textContent.includes('Months') || li.textContent.includes('साल') || li.textContent.includes('महीने')) {
+          const icon = li.querySelector('i');
+          li.textContent = `${months < 12 ? months + '+ months' : Math.floor(months/12) + '+ years'} of happy customers`;
+          if (icon) li.prepend(icon);
+        }
+      });
+    })();
+  </script>
+  <script>
+    // Sync bottom nav cart badge on home page
+    const _origUpdate = updateCartUI;
+    updateCartUI = function() {
+      _origUpdate();
+      const el = document.getElementById('bnavCartCount');
+      if (el) { const c = getCartCount(); el.textContent = c; el.style.display = c > 0 ? 'flex' : 'none'; }
+    };
+    updateCartUI();
+  </script>
+</body>
+</html>
