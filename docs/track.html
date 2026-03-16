@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Order – Laxmi Fast Food</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Poppins',sans-serif; background:#0d0d0d; color:#fff; min-height:100vh; }
+
+    header {
+      background:#111; border-bottom:2px solid #ff2b2b;
+      padding:14px 20px; display:flex; align-items:center; gap:14px;
+      position:sticky; top:0; z-index:100;
+    }
+    header a { color:#ff2b2b; font-size:20px; text-decoration:none; }
+    header h1 { font-size:17px; font-weight:700; color:#fff; }
+    header span { font-size:12px; opacity:0.5; display:block; }
+
+    .wrap { max-width:520px; margin:0 auto; padding:24px 16px 80px; }
+
+    /* SEARCH BOX */
+    .search-box {
+      background:#181818; border:1px solid #222; border-radius:18px;
+      padding:24px 20px; margin-bottom:24px; text-align:center;
+    }
+    .search-box i { font-size:36px; color:#ff2b2b; margin-bottom:12px; display:block; }
+    .search-box h2 { font-size:18px; font-weight:700; margin-bottom:4px; }
+    .search-box p { font-size:13px; opacity:0.5; margin-bottom:20px; }
+    .search-row { display:flex; gap:10px; }
+    .search-row input {
+      flex:1; padding:12px 16px; background:#111; border:1px solid #333;
+      border-radius:12px; color:#fff; font-size:14px; outline:none;
+      font-family:'Poppins',sans-serif;
+    }
+    .search-row input:focus { border-color:#ff2b2b; }
+    .search-row button {
+      padding:12px 18px; background:#ff2b2b; color:#fff; border:none;
+      border-radius:12px; font-size:14px; font-weight:600; cursor:pointer;
+      font-family:'Poppins',sans-serif; transition:background 0.2s;
+    }
+    .search-row button:hover { background:#e00; }
+
+    /* ORDER CARD */
+    .order-card {
+      background:#181818; border:1px solid #2a2a2a; border-radius:16px;
+      padding:18px; margin-bottom:16px; animation:fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    .oc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:10px; }
+    .oc-id { font-size:13px; font-family:monospace; color:#ff2b2b; font-weight:700; }
+    .oc-time { font-size:11px; opacity:0.45; margin-top:3px; }
+
+    .status-badge {
+      font-size:11px; font-weight:700; padding:4px 12px;
+      border-radius:20px; border:1px solid; white-space:nowrap; flex-shrink:0;
+    }
+    .status-Order-Received { background:rgba(255,193,7,0.15);  color:#ffc107; border-color:#ffc10740; }
+    .status-Preparing      { background:rgba(33,150,243,0.15); color:#2196f3; border-color:#2196f340; }
+    .status-Ready          { background:rgba(156,39,176,0.15); color:#ce93d8; border-color:#9c27b040; }
+    .status-Completed      { background:rgba(76,175,80,0.15);  color:#4caf50; border-color:#4caf5040; }
+
+    /* TRACKER STEPS */
+    .tracker { display:flex; align-items:center; margin:14px 0; }
+    .t-step {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      flex:1; position:relative;
+    }
+    .t-step::after {
+      content:''; position:absolute; top:14px; left:50%; width:100%;
+      height:2px; background:#2a2a2a; z-index:0;
+    }
+    .t-step:last-child::after { display:none; }
+    .t-dot {
+      width:28px; height:28px; border-radius:50%; background:#1e1e1e;
+      border:2px solid #333; display:flex; align-items:center; justify-content:center;
+      font-size:12px; color:#555; z-index:1; transition:all 0.4s;
+    }
+    .t-label { font-size:10px; opacity:0.4; text-align:center; transition:all 0.4s; }
+    .t-step.active .t-dot   { background:#ff2b2b22; border-color:#ff2b2b; color:#ff2b2b; }
+    .t-step.active .t-label { opacity:0.8; }
+    .t-step.active::after   { background:#ff2b2b55; }
+    .t-step.current .t-dot  { background:#ff2b2b; color:#fff; box-shadow:0 0 10px #ff2b2b88; }
+    .t-step.current .t-label { opacity:1; font-weight:600; color:#ff2b2b; }
+
+    .oc-items { font-size:12px; opacity:0.65; line-height:1.8; margin-bottom:12px; }
+    .oc-footer { display:flex; justify-content:space-between; align-items:center; border-top:1px solid #222; padding-top:12px; }
+    .oc-total { font-family:'Bebas Neue',sans-serif; font-size:20px; color:#ff2b2b; letter-spacing:1px; }
+    .oc-addr { font-size:11px; opacity:0.4; text-align:right; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-left:10px; }
+
+    /* DELIVERY CONFIRM */
+    .delivery-confirm { margin-top:12px; border-top:1px solid #222; padding-top:12px; }
+    .delivery-confirm p { font-size:13px; font-weight:600; margin-bottom:10px; }
+    .dc-btns { display:flex; gap:10px; }
+    .dc-btn {
+      flex:1; padding:10px; border:none; border-radius:10px;
+      font-size:13px; font-weight:700; cursor:pointer; font-family:'Poppins',sans-serif;
+      transition:opacity 0.2s;
+    }
+    .dc-btn:hover { opacity:0.85; }
+    .dc-yes { background:#4caf50; color:#fff; }
+    .dc-no  { background:#ff2b2b; color:#fff; }
+    .dc-done { font-size:12px; margin-top:8px; }
+    .dc-done.ok  { color:#4caf50; }
+    .dc-done.bad { color:#ff2b2b; }
+    .dc-wa {
+      display:inline-flex; align-items:center; gap:6px; margin-top:10px;
+      background:#25d366; color:#fff; padding:10px 16px; border-radius:10px;
+      font-size:13px; font-weight:700; text-decoration:none; width:100%;
+      justify-content:center;
+    }
+
+    /* RATING */
+    .rating-row { margin-top:12px; border-top:1px solid #222; padding-top:12px; }
+    .rating-row p { font-size:12px; opacity:0.6; margin-bottom:8px; }
+    .stars { display:flex; gap:6px; }
+    .star-btn {
+      background:none; border:none; font-size:22px; cursor:pointer;
+      color:#333; transition:color 0.2s; padding:0;
+    }
+    .star-btn.lit { color:#ffc107; }
+    .rating-done { font-size:12px; color:#4caf50; margin-top:6px; }
+    .rating-input { margin-top:8px; display:none; flex-direction:column; gap:8px; }
+    .rating-input textarea {
+      width:100%; padding:10px 12px; background:#111; border:1px solid #333;
+      border-radius:10px; color:#fff; font-size:13px; resize:none; outline:none;
+      font-family:'Poppins',sans-serif;
+    }
+    .rating-input textarea:focus { border-color:#ff2b2b; }
+    .rating-submit {
+      padding:8px 18px; background:#ff2b2b; color:#fff; border:none;
+      border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;
+      font-family:'Poppins',sans-serif; align-self:flex-end;
+    }
+
+    /* EMPTY / LOADING */
+    .state-box { text-align:center; padding:40px 20px; opacity:0.5; }
+    .state-box i { font-size:40px; color:#ff2b2b; display:block; margin-bottom:12px; }
+    .state-box p { font-size:15px; font-weight:600; }
+    .state-box span { font-size:12px; }
+
+    /* LIVE BADGE */
+    .live-badge {
+      display:inline-flex; align-items:center; gap:6px;
+      background:#ff2b2b22; border:1px solid #ff2b2b44;
+      color:#ff2b2b; padding:4px 12px; border-radius:20px;
+      font-size:11px; font-weight:600; margin-bottom:16px;
+    }
+    .live-dot { width:7px; height:7px; border-radius:50%; background:#ff2b2b; animation:pulse 1.2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    @media(max-width:480px) {
+      .t-label { font-size:9px; }
+      .t-dot { width:24px; height:24px; font-size:10px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html"><i class="fas fa-arrow-left"></i></a>
+  <div>
+    <h1>🔥 Track Your Order</h1>
+    <span>Laxmi Fast Food – Shankar Nagar</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="search-box">
+    <i class="fas fa-search-location"></i>
+    <h2>Where's My Order?</h2>
+    <p>Enter your phone number to see your live order status</p>
+    <div class="search-row">
+      <input type="tel" id="phoneInput" maxlength="10" placeholder="Enter 10-digit phone number"
+        onkeydown="if(event.key==='Enter') trackOrders()"/>
+      <button onclick="trackOrders()"><i class="fas fa-search"></i></button>
+    </div>
+  </div>
+
+  <div id="resultArea"></div>
+
+</div>
+
+<script>
+  const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api/orders'
+    : 'https://laxmi-ffc-backend.onrender.com/api/orders';
+
+  const STEPS       = ['Order Received', 'Preparing', 'Ready', 'Completed'];
+  const STEP_ICONS  = ['fa-check', 'fa-fire', 'fa-bell', 'fa-flag-checkered'];
+  const STEP_LABELS = ['Received', 'Preparing', 'Ready', 'Done'];
+
+  let liveIntervals = {};
+
+  // Auto-fill from localStorage
+  window.onload = () => {
+    const saved = localStorage.getItem('lff_phone');
+    if (saved) { document.getElementById('phoneInput').value = saved; trackOrders(); }
+  };
+
+  async function trackOrders() {
+    const phone = document.getElementById('phoneInput').value.trim();
+    if (!/^\d{10}$/.test(phone)) { showResult('error', 'Enter a valid 10-digit phone number.'); return; }
+
+    localStorage.setItem('lff_phone', phone);
+    showResult('loading');
+
+    try {
+      const res    = await fetch(`${API}/by-phone/${phone}`);
+      const orders = await res.json();
+      if (!orders.length) { showResult('empty'); return; }
+      renderOrders(orders);
+      // Start live polling for active orders
+      orders.forEach(o => {
+        if (o.orderStatus !== 'Completed') startLivePoll(o._id);
+      });
+    } catch {
+      showResult('error', 'Could not connect. Check your internet.');
+    }
+  }
+
+  function renderOrders(orders) {
+    const area = document.getElementById('resultArea');
+    area.innerHTML = `
+      <div class="live-badge"><span class="live-dot"></span> Live Tracking</div>
+      ${orders.map(o => orderCardHTML(o)).join('')}`;
+  }
+
+  function orderCardHTML(o) {
+    const step    = STEPS.indexOf(o.orderStatus);
+    const date    = new Date(o.orderTime);
+    const dateStr = date.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const timeStr = date.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    const savedRating = localStorage.getItem('rating_' + o._id);
+    // Show delivery confirm if completed and enough time has passed (prepTime + 5 min buffer)
+    const elapsed = (Date.now() - new Date(o.orderTime).getTime()) / 60000;
+    const showConfirm = o.orderStatus === 'Completed' && elapsed >= (o.prepTime || 10) + 5;
+
+    return `
+      <div class="order-card" id="card_${o._id}">
+        <div class="oc-top">
+          <div>
+            <div class="oc-id"><i class="fas fa-hashtag"></i> ${o.orderId || o._id.slice(-8).toUpperCase()}</div>
+            <div class="oc-time"><i class="fas fa-clock"></i> ${dateStr} · ${timeStr}</div>
+          </div>
+          <span class="status-badge status-${o.orderStatus.replace(' ','-')}" id="badge_${o._id}">${o.orderStatus}</span>
+        </div>
+
+        <div class="tracker" id="tracker_${o._id}">
+          ${STEPS.map((s, i) => `
+            <div class="t-step ${i <= step ? 'active' : ''} ${i === step ? 'current' : ''}" id="step_${o._id}_${i}">
+              <div class="t-dot"><i class="fas ${STEP_ICONS[i]}"></i></div>
+              <div class="t-label">${STEP_LABELS[i]}</div>
+            </div>`).join('')}
+        </div>
+
+        <div class="oc-items">${o.itemsOrdered.map(i => `• ${i.name} x${i.quantity}`).join(' &nbsp;|&nbsp; ')}</div>
+
+        <div class="oc-footer">
+          <span class="oc-total">₹${o.totalAmount}</span>
+          <span class="oc-addr"><i class="fas fa-map-marker-alt"></i> ${o.address}</span>
+        </div>
+
+        ${showConfirm ? deliveryConfirmHTML(o) : ''}
+        ${o.orderStatus === 'Completed' ? ratingHTML(o._id, savedRating) : ''}
+      </div>`;
+  }
+
+  function deliveryConfirmHTML(o) {
+    const saved = localStorage.getItem('dc_' + o._id);
+    if (saved === 'yes') return `<div class="delivery-confirm"><div class="dc-done ok">✅ Great! Glad you received your order.</div></div>`;
+    if (saved === 'no')  return `<div class="delivery-confirm"><div class="dc-done bad">⚠️ Issue reported. We're sorry!</div><a class="dc-wa" href="${buildIssueWA(o)}" target="_blank"><i class="fab fa-whatsapp"></i> Chat with Us</a></div>`;
+    return `
+      <div class="delivery-confirm" id="dc_${o._id}">
+        <p>⏰ Estimated time is up — Did you receive your order?</p>
+        <div class="dc-btns">
+          <button class="dc-btn dc-yes" onclick="confirmDelivery('${o._id}','yes','${o.orderId || o._id.slice(-8).toUpperCase()}',${o.prepTime||10})"><i class="fas fa-check"></i> Yes, Received!</button>
+          <button class="dc-btn dc-no"  onclick="confirmDelivery('${o._id}','no','${o.orderId || o._id.slice(-8).toUpperCase()}',${o.prepTime||10})"><i class="fas fa-times"></i> Not Yet</button>
+        </div>
+      </div>`;
+  }
+
+  function buildIssueWA(o) {
+    const id = o.orderId || o._id.slice(-8).toUpperCase();
+    const msg = encodeURIComponent(`Hey Santosh, kindly look at this issue. The estimated time is up and we didn't receive the order yet.\n\nOrder ID: ${id}\nItems: ${o.itemsOrdered.map(i => i.name + ' x' + i.quantity).join(', ')}\nTotal: \u20b9${o.totalAmount}`);
+    return `https://wa.me/9321611315?text=${msg}`;
+  }
+
+  async function confirmDelivery(mongoId, answer, displayId, prepTime) {
+    localStorage.setItem('dc_' + mongoId, answer);
+    try {
+      await fetch(`${API}/${mongoId}/delivery-confirm`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmed: answer })
+      });
+    } catch {}
+    const box = document.getElementById('dc_' + mongoId);
+    if (!box) return;
+    if (answer === 'yes') {
+      box.innerHTML = `<div class="dc-done ok">✅ Great! Glad you received your order.</div>`;
+    } else {
+      const waMsg = encodeURIComponent(`Hey Santosh, kindly look at this issue. The estimated time is up and we didn't receive the order yet.\n\nOrder ID: ${displayId}\nEst. Time: ${prepTime} min`);
+      box.innerHTML = `<div class="dc-done bad">⚠️ We're sorry to hear that!</div><a class="dc-wa" href="https://wa.me/9321611315?text=${waMsg}" target="_blank"><i class="fab fa-whatsapp"></i> Chat with Us</a>`;
+    }
+  }
+
+  function ratingHTML(id, saved) {
+    if (saved) return `<div class="rating-row"><div class="rating-done">⭐ You rated this order ${saved}/5 — Thank you!</div></div>`;
+    return `
+      <div class="rating-row">
+        <p>How was your order?</p>
+        <div class="stars" id="stars_${id}">
+          ${[1,2,3,4,5].map(n => `<button class="star-btn" onclick="selectStar('${id}',${n})">★</button>`).join('')}
+        </div>
+        <div class="rating-input" id="rinput_${id}">
+          <textarea id="rtext_${id}" rows="2" placeholder="Leave a review (optional)..."></textarea>
+          <button class="rating-submit" onclick="submitRating('${id}')">Submit</button>
+        </div>
+      </div>`;
+  }
+
+  function selectStar(id, n) {
+    const stars = document.querySelectorAll(`#stars_${id} .star-btn`);
+    stars.forEach((s, i) => s.classList.toggle('lit', i < n));
+    stars[n-1].dataset.selected = n;
+    document.getElementById(`stars_${id}`).dataset.val = n;
+    document.getElementById(`rinput_${id}`).style.display = 'flex';
+  }
+
+  async function submitRating(id) {
+    const val  = document.getElementById(`stars_${id}`).dataset.val;
+    const text = document.getElementById(`rtext_${id}`).value.trim();
+    if (!val) return;
+
+    const btn = document.querySelector(`#rinput_${id} .rating-submit`);
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      await fetch(`${API}/${id}/rating`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: parseInt(val), review: text })
+      });
+    } catch {}
+
+    localStorage.setItem('rating_' + id, val);
+    const row = document.querySelector(`#card_${id} .rating-row`);
+    row.innerHTML = `<div class="rating-done">⭐ You rated this order ${val}/5 — Thank you!</div>`;
+  }
+
+  // Live polling for active orders
+  function startLivePoll(id) {
+    if (liveIntervals[id]) return;
+    liveIntervals[id] = setInterval(async () => {
+      try {
+        const res  = await fetch(`${API}/${id}`);
+        const data = await res.json();
+        if (!data.orderStatus) return;
+        updateCardStatus(id, data.orderStatus);
+        if (data.orderStatus === 'Completed') {
+          clearInterval(liveIntervals[id]);
+          delete liveIntervals[id];
+          const card = document.getElementById('card_' + id);
+          if (card) {
+            if (!card.querySelector('.rating-row')) {
+              card.insertAdjacentHTML('beforeend', ratingHTML(id, null));
+            }
+            if (!card.querySelector('.delivery-confirm')) {
+              // inject delivery confirm before rating
+              const ratingRow = card.querySelector('.rating-row');
+              const dcHTML = deliveryConfirmHTML(data);
+              if (ratingRow) ratingRow.insertAdjacentHTML('beforebegin', dcHTML);
+              else card.insertAdjacentHTML('beforeend', dcHTML);
+            }
+          }
+        }
+      } catch {}
+    }, 15000);
+  }
+
+  function updateCardStatus(id, status) {
+    const step  = STEPS.indexOf(status);
+    const badge = document.getElementById('badge_' + id);
+    if (badge) {
+      badge.className = `status-badge status-${status.replace(' ','-')}`;
+      badge.textContent = status;
+    }
+    STEPS.forEach((_, i) => {
+      const el = document.getElementById(`step_${id}_${i}`);
+      if (!el) return;
+      el.classList.toggle('active',  i <= step);
+      el.classList.toggle('current', i === step);
+    });
+  }
+
+  function showResult(type, msg) {
+    const area = document.getElementById('resultArea');
+    if (type === 'loading') {
+      area.innerHTML = `<div class="state-box"><i class="fas fa-spinner fa-spin"></i><p>Fetching orders...</p></div>`;
+    } else if (type === 'empty') {
+      area.innerHTML = `<div class="state-box"><i class="fas fa-receipt"></i><p>No orders found</p><span>No orders placed with this number yet.</span></div>`;
+    } else {
+      area.innerHTML = `<div class="state-box"><i class="fas fa-exclamation-circle"></i><p>${msg}</p></div>`;
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile – Laxmi Fast Food</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/menu.css"/>
+  <link rel="stylesheet" href="css/profile.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="menu-page">
+
+  <!-- TOP BAR -->
+  <div class="menu-topbar">
+    <a href="index.html" class="menu-back-btn"><i class="fas fa-arrow-left"></i></a>
+    <div class="menu-topbar-logo">
+      <img src="assets/Logo.png" alt="Logo" class="menu-topbar-img"/>
+      <span id="profileTopbarTitle">MY PROFILE</span>
+    </div>
+    <button id="profileLangBtn" onclick="toggleProfileLanguage()" style="background:#1e1e1e;border:none;color:#fff;font-size:12px;font-weight:700;padding:6px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;flex-shrink:0;">🌐 हिंदी</button>
+  </div>
+
+  <!-- PROFILE CONTENT -->
+  <div class="profile-wrap">
+
+    <!-- AVATAR + NAME -->
+    <div class="profile-hero" id="profileHero">
+      <div class="profile-avatar" id="profileAvatar">
+        <span id="profileAvatarText">?</span>
+        <img id="profileAvatarImg" src="" alt="" style="display:none"/>
+        <label class="avatar-edit-btn" for="avatarInput" title="Change photo">
+          <i class="fas fa-camera"></i>
+        </label>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarChange(this)"/>
+      </div>
+      <div class="profile-hero-info">
+        <h2 id="profileName">Guest User</h2>
+        <p id="profilePhone">No phone saved</p>
+      </div>
+    </div>
+
+    <!-- NO USER STATE -->
+    <div class="profile-no-user" id="profileNoUser" style="display:none">
+      <i class="fas fa-user-circle"></i>
+      <p>No profile saved yet</p>
+      <span>Place an order to save your details automatically</span>
+      <a href="menu.html" class="btn btn-primary" style="margin-top:16px;text-decoration:none;display:inline-flex;width:auto;padding:10px 22px;font-size:13px">
+        <i class="fas fa-utensils"></i> Order Now
+      </a>
+    </div>
+
+    <!-- PROFILE DETAILS CARD -->
+    <div class="profile-card" id="profileCard">
+      <div class="profile-card-header">
+        <span><i class="fas fa-user"></i> Personal Info</span>
+        <button class="profile-edit-btn" id="profileEditBtn" onclick="toggleProfilePageEdit()">
+          <i class="fas fa-pen"></i> Edit
+        </button>
+      </div>
+
+      <!-- VIEW MODE -->
+      <div id="profileViewMode">
+        <div class="profile-field">
+          <span class="pf-label"><i class="fas fa-user"></i> Name</span>
+          <span class="pf-value" id="pfName">—</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label"><i class="fas fa-phone"></i> Phone</span>
+          <span class="pf-value" id="pfPhone">—</span>
+        </div>
+        <div class="profile-field">
+          <span class="pf-label"><i class="fas fa-map-marker-alt"></i> Address</span>
+          <span class="pf-value" id="pfAddress">—</span>
+        </div>
+      </div>
+
+      <!-- EDIT MODE -->
+      <div id="profileEditMode" style="display:none">
+        <div class="form-group">
+          <label><i class="fas fa-user"></i> Name</label>
+          <input type="text" id="editName" placeholder="Your full name"/>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Phone</label>
+          <input type="tel" id="editPhone" placeholder="10-digit mobile number" maxlength="10"/>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-map-marker-alt"></i> Address</label>
+          <textarea id="editAddress" rows="3" placeholder="Your delivery address"></textarea>
+        </div>
+        <div class="profile-edit-actions">
+          <button class="btn btn-primary" onclick="saveProfileEdit()"><i class="fas fa-check"></i> Save</button>
+          <button class="btn profile-cancel-btn" onclick="cancelProfileEdit()"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="profile-actions" id="profileActions">
+      <button class="paction-btn" onclick="openMyOrders()">
+        <i class="fas fa-receipt"></i>
+        <span>My Orders</span>
+      </button>
+      <a class="paction-btn" href="tel:+9321611315">
+        <i class="fas fa-phone-alt"></i>
+        <span>Call Us</span>
+      </a>
+      <a class="paction-btn" href="https://wa.me/9321611315" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+        <span>WhatsApp</span>
+      </a>
+      <button class="paction-btn paction-danger" onclick="logoutProfile()">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+
+    <!-- APP INFO -->
+    <div class="profile-info-card">
+      <div class="pinfo-row">
+        <i class="fas fa-store"></i>
+        <div>
+          <strong>Laxmi Fast Food</strong>
+          <span>Shankar Nagar, Raipur – 492007</span>
+        </div>
+      </div>
+      <div class="pinfo-row">
+        <i class="fas fa-clock"></i>
+        <div>
+          <strong>Hours</strong>
+          <span>Mon – Sun, 11:00 AM – 11:00 PM</span>
+        </div>
+      </div>
+      <div class="pinfo-row">
+        <i class="fas fa-code"></i>
+        <div>
+          <strong>App Version</strong>
+          <span>v1.0.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER HISTORY -->
+    <div class="profile-card" id="orderHistorySection" style="display:none">
+      <div class="profile-card-header">
+        <span><i class="fas fa-history"></i> Order History</span>
+        <button class="profile-edit-btn" onclick="loadOrderHistory()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+      <div id="orderHistoryList">
+        <div class="oh-loading"><i class="fas fa-spinner fa-spin"></i> Loading orders...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div class="modal-overlay" id="myOrdersOverlay">
+    <div class="order-modal" id="myOrdersModal">
+      <div class="modal-header">
+        <h3><i class="fas fa-receipt"></i> My Orders Today</h3>
+        <button class="modal-close" onclick="closeMyOrders()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Enter your phone number</label>
+          <div style="display:flex;gap:10px">
+            <input type="tel" id="myOrdersPhone" placeholder="10-digit mobile number" maxlength="10" style="flex:1"/>
+            <button class="btn btn-primary" onclick="fetchMyOrders()" id="myOrdersBtn" style="padding:12px 18px;border-radius:10px"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <div id="myOrdersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="orderToast" class="order-toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">Saved!</span>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a href="index.html" class="bnav-item">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    <a href="menu.html" class="bnav-item">
+      <i class="fas fa-utensils"></i><span>Menu</span>
+    </a>
+    <a href="menu.html" class="bnav-item">
+      <i class="fas fa-search"></i><span>Search</span>
+    </a>
+    <button class="bnav-item" onclick="window.location.href='menu.html'">
+      <i class="fas fa-shopping-bag"></i><span>Cart</span>
+    </button>
+    <a href="profile.html" class="bnav-item active">
+      <i class="fas fa-user"></i><span>Profile</span>
+    </a>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>
