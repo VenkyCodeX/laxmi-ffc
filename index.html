@@ -532,8 +532,10 @@
   <script src="js/script.js"></script>
   <script>
     // Splash screen
+    setTimeout(() => document.getElementById('splashScreen').classList.add('hide'), 2000);
     window.addEventListener('load', () => {
-      setTimeout(() => document.getElementById('splashScreen').classList.add('hide'), 1800);
+      // ensure it hides even if already past 2s
+      document.getElementById('splashScreen').classList.add('hide');
     });
 
     // Owner image slider
