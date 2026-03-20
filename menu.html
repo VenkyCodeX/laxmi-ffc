@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu – Laxmi Fast Food</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/menu.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="menu-page">
+
+  <!-- SPLASH SCREEN -->
+  <div id="splashScreen">
+    <img src="assets/Logo.png" alt="Logo" class="splash-logo"/>
+    <div class="splash-name">LAXMI FAST FOOD</div>
+    <div class="splash-sub">Hot &amp; Spicy • Shankar Nagar</div>
+    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="menu-topbar">
+    <a href="index.html" class="menu-back-btn"><i class="fas fa-arrow-left"></i></a>
+    <div class="menu-topbar-logo">
+      <img src="assets/Logo.png" alt="Logo" class="menu-topbar-img"/>
+    </div>
+    <button id="menuLangBtn" onclick="toggleMenuLanguage()" style="background:#1e1e1e;border:none;color:#fff;font-size:12px;font-weight:700;padding:6px 10px;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;flex-shrink:0;">🌐 हिंदी</button>
+    <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle dark/light mode"><i class="fas fa-sun"></i></button>
+    <button class="menu-topbar-cart" onclick="toggleCart()">
+      <i class="fas fa-shopping-bag"></i>
+      <span class="cart-nav-count" id="cartNavCount">0</span>
+    </button>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <div class="menu-search-wrap">
+    <div class="menu-search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="menuSearch" placeholder="Search dishes..." oninput="searchMenu(this.value)"/>
+      <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="veg-toggle-wrap">
+      <span class="veg-toggle-label">🌿 Veg</span>
+      <label class="veg-toggle">
+        <input type="checkbox" id="vegToggle" onchange="toggleVegMode(this.checked)"/>
+        <span class="veg-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- CATEGORY FILTER -->
+  <div class="menu-cats">
+    <button class="cat-btn active" data-filter="all">
+      <span class="cat-icon">🍽️</span><span>All</span>
+    </button>
+    <button class="cat-btn" data-filter="noodles">
+      <span class="cat-icon">🍜</span><span>Noodles</span>
+    </button>
+    <button class="cat-btn" data-filter="rice">
+      <span class="cat-icon">🍚</span><span>Rice</span>
+    </button>
+    <button class="cat-btn" data-filter="starters">
+      <span class="cat-icon">🍗</span><span>Starters</span>
+    </button>
+    <button class="cat-btn" data-filter="drinks">
+      <span class="cat-icon">🥤</span><span>Drinks</span>
+    </button>
+  </div>
+
+  <!-- MENU GRID -->
+  <div class="menu-page-grid" id="menuPageGrid">
+
+    <div class="mp-card" data-category="noodles" data-name="chicken noodles" data-veg="no">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80" alt="Chicken Noodles" loading="lazy"/>
+        <div class="mp-badge">🔥 Bestseller</div>
+      </div>
+      <div class="mp-body">
+        <h3>Chicken Noodles</h3>
+        <p>Wok-tossed noodles with juicy chicken &amp; spicy sauce</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹80</span>
+          <button class="mp-add-btn" onclick="addToCart('Chicken Noodles',80)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="noodles" data-name="egg noodles" data-veg="no">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80" alt="Egg Noodles" loading="lazy"/>
+      </div>
+      <div class="mp-body">
+        <h3>Egg Noodles</h3>
+        <p>Classic egg noodles tossed with veggies &amp; soy sauce</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹70</span>
+          <button class="mp-add-btn" onclick="addToCart('Egg Noodles',70)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="noodles" data-name="veg noodles" data-veg="yes">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=400&q=80" alt="Veg Noodles" loading="lazy"/>
+        <div class="mp-badge mp-veg">🌿 Veg</div>
+      </div>
+      <div class="mp-body">
+        <h3>Veg Noodles</h3>
+        <p>Colorful veggies &amp; noodles in a savory sauce</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹60</span>
+          <button class="mp-add-btn" onclick="addToCart('Veg Noodles',60)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="rice" data-name="chicken fried rice" data-veg="no">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&q=80" alt="Chicken Fried Rice" loading="lazy"/>
+        <div class="mp-badge">🔥 Bestseller</div>
+      </div>
+      <div class="mp-body">
+        <h3>Chicken Fried Rice</h3>
+        <p>Aromatic fried rice loaded with tender chicken pieces</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹90</span>
+          <button class="mp-add-btn" onclick="addToCart('Chicken Fried Rice',90)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="rice" data-name="egg fried rice" data-veg="no">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=400&q=80" alt="Egg Fried Rice" loading="lazy"/>
+      </div>
+      <div class="mp-body">
+        <h3>Egg Fried Rice</h3>
+        <p>Fluffy scrambled eggs tossed with seasoned rice</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹75</span>
+          <button class="mp-add-btn" onclick="addToCart('Egg Fried Rice',75)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="rice" data-name="veg fried rice" data-veg="yes">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80" alt="Veg Fried Rice" loading="lazy"/>
+        <div class="mp-badge mp-veg">🌿 Veg</div>
+      </div>
+      <div class="mp-body">
+        <h3>Veg Fried Rice</h3>
+        <p>Garden-fresh vegetables tossed in seasoned rice</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹65</span>
+          <button class="mp-add-btn" onclick="addToCart('Veg Fried Rice',65)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="starters" data-name="chicken 65" data-veg="no">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?w=400&q=80" alt="Chicken 65" loading="lazy"/>
+        <div class="mp-badge mp-spicy">🌶️ Spicy</div>
+      </div>
+      <div class="mp-body">
+        <h3>Chicken 65</h3>
+        <p>Crispy deep-fried chicken with fiery spices</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹120</span>
+          <button class="mp-add-btn" onclick="addToCart('Chicken 65',120)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="starters" data-name="chilli chicken" data-veg="no">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=400&q=80" alt="Chilli Chicken" loading="lazy"/>
+        <div class="mp-badge mp-spicy">🌶️ Spicy</div>
+      </div>
+      <div class="mp-body">
+        <h3>Chilli Chicken</h3>
+        <p>Indo-Chinese style chicken in bold chilli sauce</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹130</span>
+          <button class="mp-add-btn" onclick="addToCart('Chilli Chicken',130)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="starters" data-name="veg manchurian" data-veg="yes">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400&q=80" alt="Veg Manchurian" loading="lazy"/>
+        <div class="mp-badge mp-veg">🌿 Veg</div>
+      </div>
+      <div class="mp-body">
+        <h3>Veg Manchurian</h3>
+        <p>Crispy veggie balls in tangy Manchurian gravy</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹90</span>
+          <button class="mp-add-btn" onclick="addToCart('Veg Manchurian',90)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card" data-category="drinks" data-name="cool drinks" data-veg="both">
+      <div class="mp-img-wrap">
+        <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&q=80" alt="Cool Drinks" loading="lazy"/>
+      </div>
+      <div class="mp-body">
+        <h3>Cool Drinks</h3>
+        <p>Chilled beverages to cool down the spice</p>
+        <div class="mp-footer">
+          <span class="mp-price">₹30</span>
+          <button class="mp-add-btn" onclick="addToCart('Cool Drinks',30)"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NO RESULTS -->
+  <div class="menu-no-results" id="menuNoResults" style="display:none">
+    <i class="fas fa-search"></i>
+    <p>No dishes found</p>
+  </div>
+
+  <!-- CART SIDEBAR -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3><i class="fas fa-shopping-bag"></i> Your Order</h3>
+      <button class="cart-close" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty"><i class="fas fa-bowl-food"></i><p>Your cart is empty</p><span>Add items from the menu</span></div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>Total</span>
+        <span class="cart-total-amt" id="cartTotalAmt">₹0</span>
+      </div>
+      <button class="btn btn-primary w-full" onclick="showOrderForm()"><i class="fas fa-paper-plane"></i> Place Order</button>
+    </div>
+  </div>
+
+  <!-- ORDER FORM MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="order-modal" id="orderModal">
+      <div class="modal-header">
+        <h3><i class="fas fa-receipt"></i> Complete Your Order</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="order-summary" id="orderSummary"></div>
+        <div id="savedProfileBanner" style="display:none" class="saved-profile-banner">
+          <div class="spb-info">
+            <i class="fas fa-user-circle"></i>
+            <div>
+              <div id="spbName" class="spb-name"></div>
+              <div id="spbPhone" class="spb-phone"></div>
+            </div>
+          </div>
+          <button class="spb-edit-btn" onclick="toggleProfileEdit()"><i class="fas fa-pen"></i> Edit</button>
+        </div>
+        <div id="orderForm">
+          <div class="form-group">
+            <label><i class="fas fa-user"></i> Your Name</label>
+            <input type="text" id="custName" placeholder="Enter your full name"/>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-phone"></i> Phone Number</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="tel" id="custPhone" placeholder="10-digit mobile number" maxlength="10" style="flex:1"/>
+              <button type="button" class="btn btn-primary" id="sendOtpBtn" onclick="sendOTP()" style="white-space:nowrap;padding:12px 14px;font-size:0.85rem">
+                <i class="fas fa-sms"></i> Send OTP
+              </button>
+            </div>
+          </div>
+          <div class="form-group" id="otpRow" style="display:none">
+            <label><i class="fas fa-key"></i> Enter OTP <span id="otpStatus" style="font-size:0.8rem;margin-left:8px"></span></label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="otpInput" placeholder="6-digit OTP" maxlength="6" inputmode="numeric"
+                style="flex:1;letter-spacing:6px;font-size:1.3rem;text-align:center;font-weight:700"/>
+              <button type="button" class="btn btn-primary" id="verifyOtpBtn" onclick="verifyOTP()" style="padding:12px 14px;font-size:0.85rem">
+                <i class="fas fa-check"></i> Verify
+              </button>
+            </div>
+            <button type="button" onclick="sendOTP()" style="background:none;border:none;color:#ff6b35;font-size:0.82rem;cursor:pointer;padding:4px 0;margin-top:4px">
+              <i class="fas fa-redo"></i> Resend OTP
+            </button>
+          </div>
+          <div class="form-group" id="addressRow" style="display:none">
+            <label style="justify-content:space-between">
+              <span><i class="fas fa-map-marker-alt"></i> Delivery Address</span>
+              <button type="button" class="loc-btn" onclick="useMyLocation()"><i class="fas fa-crosshairs"></i> Use Location</button>
+            </label>
+            <textarea id="custAddress" placeholder="Enter your full delivery address" rows="3"></textarea>
+          </div>
+          <div class="form-group" id="couponRow" style="display:none">
+            <label><i class="fas fa-tag"></i> Coupon Code <span id="couponMsg" style="font-size:11px;margin-left:8px"></span></label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="couponInput" placeholder="Enter coupon code" style="flex:1;text-transform:uppercase"/>
+              <button type="button" class="btn btn-primary" onclick="applyCoupon()" style="padding:12px 14px;font-size:0.85rem;white-space:nowrap">
+                <i class="fas fa-check"></i> Apply
+              </button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary w-full" id="submitBtn" style="display:none;margin-bottom:70px" onclick="submitOrder()">
+            <i class="fas fa-check-circle"></i> Choose Payment & Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT METHOD MODAL -->
+  <div class="modal-overlay" id="paymentOverlay">
+    <div class="order-modal" id="paymentModal" style="max-width:420px">
+      <div class="modal-header">
+        <h3><i class="fas fa-credit-card"></i> Choose Payment</h3>
+        <button class="modal-close" onclick="closePaymentModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="paymentOrderAmt" style="text-align:center;font-size:1.4rem;font-weight:700;color:#ff2b2b;margin-bottom:18px"></div>
+        <div class="pay-option" onclick="selectPayment('cod')" style="display:flex;align-items:center;gap:14px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 18px;cursor:pointer;margin-bottom:12px">
+          <span style="font-size:2rem">💵</span>
+          <div>
+            <div style="font-weight:700;font-size:1rem">Cash on Delivery</div>
+            <div style="font-size:0.78rem;opacity:0.55;margin-top:2px">Pay when your order arrives</div>
+          </div>
+          <i class="fas fa-chevron-right" style="margin-left:auto;opacity:0.4"></i>
+        </div>
+        <div style="font-size:0.78rem;opacity:0.5;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">Pay Online via UPI</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="pay-option upi-card" onclick="selectPayment('phonepe')" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 10px;cursor:pointer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.png/200px-PhonePe_Logo.png" style="width:44px;height:44px;object-fit:contain;border-radius:10px" alt="PhonePe"/>
+            <span style="font-size:0.8rem;font-weight:600">PhonePe</span>
+          </div>
+          <div class="pay-option upi-card" onclick="selectPayment('googlepay')" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 10px;cursor:pointer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/200px-Google_Pay_Logo.svg.png" style="width:44px;height:44px;object-fit:contain;border-radius:10px" alt="Google Pay"/>
+            <span style="font-size:0.8rem;font-weight:600">Google Pay</span>
+          </div>
+          <div class="pay-option upi-card" onclick="selectPayment('paytm')" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 10px;cursor:pointer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/200px-Paytm_Logo_%28standalone%29.svg.png" style="width:44px;height:44px;object-fit:contain;border-radius:10px" alt="Paytm"/>
+            <span style="font-size:0.8rem;font-weight:600">Paytm</span>
+          </div>
+        </div>
+        <div id="paymentProcessing" style="display:none;text-align:center;padding:20px 0">
+          <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#ff2b2b"></i>
+          <p style="margin-top:10px;opacity:0.7">Opening payment...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div class="modal-overlay" id="successOverlay">
+    <div class="success-modal">
+      <div class="success-icon">✅</div>
+      <h3>Order Placed!</h3>
+      <p id="successMsg">Your order has been received!</p>
+      <div class="order-id-display" id="orderIdDisplay"></div>
+      <div class="prep-time-display" id="prepTimeDisplay"></div>
+      <div class="order-status-track" id="orderStatusTrack">
+        <div class="track-step active" id="track0"><i class="fas fa-check-circle"></i><span>Order Received</span></div>
+        <div class="track-step" id="track1"><i class="fas fa-fire"></i><span>Preparing</span></div>
+        <div class="track-step" id="track2"><i class="fas fa-bell"></i><span>Ready</span></div>
+        <div class="track-step" id="track3"><i class="fas fa-flag-checkered"></i><span>Completed</span></div>
+      </div>
+      <div class="success-btns">
+        <button class="btn btn-primary" onclick="closeSuccess()">Continue</button>
+        <a id="waConfirm" href="#" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE ORDER TRACKER -->
+  <div id="liveTracker">
+    <div class="tracker-header">
+      <span>🔥 LIVE ORDER STATUS</span>
+      <button class="tracker-close" onclick="closeTracker()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="tracker-id" id="trackerOrderId"></div>
+    <div class="tracker-steps">
+      <div class="tracker-step" id="ts0"><i class="fas fa-check-circle"></i><span>Received</span></div>
+      <div class="tracker-step" id="ts1"><i class="fas fa-fire"></i><span>Preparing</span></div>
+      <div class="tracker-step" id="ts2"><i class="fas fa-bell"></i><span>Ready</span></div>
+      <div class="tracker-step" id="ts3"><i class="fas fa-flag-checkered"></i><span>Done</span></div>
+    </div>
+    <div class="tracker-eta" id="trackerEta"></div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="orderToast" class="order-toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMsg">Item added!</span>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <a href="index.html" class="bnav-item">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    <a href="menu.html" class="bnav-item active">
+      <i class="fas fa-utensils"></i><span>Menu</span>
+    </a>
+    <button class="bnav-item bnav-search-btn" onclick="document.getElementById('menuSearch').focus()">
+      <i class="fas fa-search"></i><span>Search</span>
+    </button>
+    <button class="bnav-item" onclick="toggleCart()">
+      <i class="fas fa-shopping-bag"></i>
+      <span>Cart</span>
+      <span class="bnav-cart-count" id="bnavCartCount">0</span>
+    </button>
+    <a href="profile.html" class="bnav-item">
+      <i class="fas fa-user"></i><span>Profile</span>
+    </a>
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div class="modal-overlay" id="myOrdersOverlay">
+    <div class="order-modal" id="myOrdersModal">
+      <div class="modal-header">
+        <h3><i class="fas fa-receipt"></i> My Orders Today</h3>
+        <button class="modal-close" onclick="closeMyOrders()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-phone"></i> Enter your phone number</label>
+          <div style="display:flex;gap:10px">
+            <input type="tel" id="myOrdersPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" maxlength="10" style="flex:1"/>
+            <button class="btn btn-primary" onclick="fetchMyOrders()" id="myOrdersBtn" style="padding:12px 18px;border-radius:10px"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <div id="myOrdersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/menu.js"></script>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('splashScreen').classList.add('hide'), 1800);
+    });
+  </script>
+</body>
+</html>
