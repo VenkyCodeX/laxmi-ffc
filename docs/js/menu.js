@@ -41,7 +41,7 @@ function filterMenu(category, search) {
     const matchCat  = category === 'all' || card.dataset.category === category;
     const matchName = !q || card.dataset.name.includes(q);
     const veg       = card.dataset.veg; // 'yes', 'no', 'both'
-    const matchVeg  = veg === 'both' || (vegMode ? veg === 'yes' : veg === 'no');
+    const matchVeg  = veg === 'both' || (vegMode ? veg === 'yes' : true);
     const show = matchCat && matchName && matchVeg;
     card.classList.toggle('hidden', !show);
     if (show) visible++;

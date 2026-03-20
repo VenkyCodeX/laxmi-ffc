@@ -158,6 +158,7 @@ function toggleCart() {
 
 function bumpFloatingCart() {
   const fc = document.getElementById('floatingCart');
+  if (!fc) return;
   fc.classList.add('bump');
   setTimeout(() => fc.classList.remove('bump'), 500);
 }
