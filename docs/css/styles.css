@@ -1774,7 +1774,7 @@ nav#navbar {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.75);
-  z-index: 1300;
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2008,6 +2008,18 @@ nav#navbar {
   transition: all 0.2s;
 }
 .copy-upi-btn:hover { background: #ff2b2b; color: #fff; }
+
+/* ===== PAYMENT METHOD MODAL ===== */
+.pay-option {
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.pay-option:hover {
+  border-color: #ff2b2b !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,43,43,0.2);
+}
+.upi-card:hover img { transform: scale(1.08); }
+.upi-card img { transition: transform 0.2s; }
 
 /* ===== LOCATION BUTTON ===== */
 .loc-btn {

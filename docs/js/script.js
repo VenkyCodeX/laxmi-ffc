@@ -53,6 +53,7 @@ function updateShopStatus() {
 // ── NAVBAR SCROLL ────────────────────────────────────────
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
+  if (!navbar) return;
   navbar.style.background     = window.scrollY > 50 ? 'rgba(0,0,0,0.95)' : 'transparent';
   navbar.style.backdropFilter = window.scrollY > 50 ? 'blur(12px)' : 'none';
 });
@@ -60,9 +61,9 @@ window.addEventListener('scroll', () => {
 // ── HAMBURGER ────────────────────────────────────────────
 const hamburger = document.getElementById('hamburger');
 const navLinks  = document.getElementById('navLinks');
-hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
+if (hamburger) hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
 document.querySelectorAll('.nav-links a').forEach(l =>
-  l.addEventListener('click', () => navLinks.classList.remove('open'))
+  l.addEventListener('click', () => { if (navLinks) navLinks.classList.remove('open'); })
 );
 
 // ── MENU FILTER ──────────────────────────────────────────
@@ -350,13 +351,6 @@ async function verifyOTP() {
 function showOrderForm() {
   if (!cart.length) { showToast('Add items to cart first!'); return; }
 
-  // Shop closed check
-  const hour = new Date().getHours();
-  if (hour < SHOP_OPEN || hour >= SHOP_CLOSE) {
-    showToast(`Shop is closed! Open ${SHOP_OPEN}AM – ${SHOP_CLOSE === 23 ? '11PM' : SHOP_CLOSE + 'AM'}`);
-    return;
-  }
-
   // Minimum order check
   if (getCartTotal() < MIN_ORDER) {
     showToast(`Minimum order is ₹${MIN_ORDER}. Add ₹${MIN_ORDER - getCartTotal()} more.`);
@@ -501,9 +495,11 @@ function updateCartTotalWithDiscount() {
     </div>`);
 }
 
-// ── SUBMIT ORDER ─────────────────────────────────────────
-async function submitOrder(e) {
-  e.preventDefault();
+// ── PENDING ORDER DETAILS (set before payment modal opens) ──
+let _pendingOrder = null;
+
+// ── SUBMIT ORDER → open payment modal ────────────────────
+function submitOrder() {
   const customerName = document.getElementById('custName').value.trim();
   const phoneNumber  = document.getElementById('custPhone').value.trim();
   const address      = document.getElementById('custAddress').value.trim();
@@ -512,22 +508,140 @@ async function submitOrder(e) {
   if (!/^\d{10}$/.test(phoneNumber)) { showToast('Enter a valid 10-digit phone number'); return; }
   if (!address) { showToast('Please enter your delivery address'); return; }
 
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing Order...';
-
   saveUser(customerName, phoneNumber, address);
   lastOrderItems = [...cart];
 
-  const orderData = {
+  _pendingOrder = {
     customerName, phoneNumber, address,
-    itemsOrdered: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
     totalAmount: getDiscountedTotal() + DELIVERY_CHARGE,
     couponCode: appliedCoupon ? appliedCoupon.code : '',
     discount:   appliedCoupon ? (getCartTotal() - getDiscountedTotal()) : 0,
-    deliveryCharge: DELIVERY_CHARGE
+    items: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity }))
   };
   appliedCoupon = null;
+
+  // close order form, open payment modal
+  closeModal();
+  setTimeout(openPaymentModal, 320);
+}
+
+// ── PAYMENT MODAL ─────────────────────────────────────────
+function openPaymentModal() {
+  document.getElementById('paymentOrderAmt').textContent = '₹' + _pendingOrder.totalAmount;
+  document.getElementById('paymentProcessing').style.display = 'none';
+  document.querySelectorAll('.pay-option').forEach(el => el.style.opacity = '1');
+  document.getElementById('paymentOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePaymentModal() {
+  document.getElementById('paymentOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+async function selectPayment(method) {
+  if (method === 'cod') {
+    closePaymentModal();
+    await placeOrder('cod', '');
+  } else {
+    // method = 'phonepe' | 'googlepay' | 'paytm'
+    await handleRazorpayPayment(method);
+  }
+}
+
+// ── RAZORPAY UPI PAYMENT ──────────────────────────────────
+const UPI_APP_CONFIG = {
+  phonepe:   { vpa: 'phonepe',   wallet: null },
+  googlepay: { vpa: 'gpay',      wallet: null },
+  paytm:     { vpa: 'paytm',     wallet: 'paytm' }
+};
+
+async function handleRazorpayPayment(upiApp) {
+  // show processing spinner
+  document.querySelectorAll('.pay-option').forEach(el => el.style.opacity = '0.4');
+  document.getElementById('paymentProcessing').style.display = 'block';
+
+  try {
+    const res  = await fetch(API_URL + '/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: _pendingOrder.totalAmount })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showToast('Payment initiation failed. Try COD.');
+      document.querySelectorAll('.pay-option').forEach(el => el.style.opacity = '1');
+      document.getElementById('paymentProcessing').style.display = 'none';
+      return;
+    }
+
+    const cfg = UPI_APP_CONFIG[upiApp];
+    const options = {
+      key: 'rzp_test_XXXXXXXXXXXXXXXX', // ← replace with your Razorpay Key ID
+      amount: data.amount,
+      currency: data.currency,
+      name: 'Laxmi Fast Food',
+      description: 'Food Order',
+      order_id: data.orderId,
+      prefill: {
+        name:    _pendingOrder.customerName,
+        contact: _pendingOrder.phoneNumber,
+        method:  'upi'
+      },
+      method: { upi: true, card: false, netbanking: false, wallet: false },
+      config: { display: { blocks: { upi: { name: 'Pay via UPI', instruments: [{ method: 'upi', apps: [upiApp === 'googlepay' ? 'google_pay' : upiApp === 'phonepe' ? 'phonepe' : 'paytm'] }] } }, sequence: ['block.upi'], preferences: { show_default_blocks: false } } },
+      theme: { color: '#ff2b2b' },
+      handler: async function(response) {
+        closePaymentModal();
+        // verify
+        try {
+          const vRes  = await fetch(API_URL + '/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature:  response.razorpay_signature
+            })
+          });
+          const vData = await vRes.json();
+          if (vData.success) {
+            await placeOrder('upi', response.razorpay_payment_id);
+          } else {
+            showToast('Payment verification failed. Contact support.');
+          }
+        } catch {
+          showToast('Could not verify payment. Contact support.');
+        }
+      },
+      modal: { ondismiss: function() {
+        document.querySelectorAll('.pay-option').forEach(el => el.style.opacity = '1');
+        document.getElementById('paymentProcessing').style.display = 'none';
+      }}
+    };
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch {
+    showToast('Payment failed. Please try COD.');
+    document.querySelectorAll('.pay-option').forEach(el => el.style.opacity = '1');
+    document.getElementById('paymentProcessing').style.display = 'none';
+  }
+}
+
+// ── PLACE ORDER (after payment decision) ─────────────────
+async function placeOrder(paymentMethod, transactionId) {
+  const { customerName, phoneNumber, address, totalAmount, couponCode, discount, items } = _pendingOrder;
+
+  const orderData = {
+    customerName, phoneNumber, address,
+    itemsOrdered: items,
+    totalAmount,
+    couponCode,
+    discount,
+    deliveryCharge: DELIVERY_CHARGE,
+    paymentMethod,
+    transactionId
+  };
 
   try {
     const controller = new AbortController();
@@ -541,28 +655,23 @@ async function submitOrder(e) {
     clearTimeout(timeout);
     const data = await res.json();
     if (data.success) {
-      closeModal();
       playOrderSound();
-      showSuccess(data.orderId, data.prepTime, customerName, phoneNumber, address);
+      showSuccess(data.orderId, data.prepTime, customerName, phoneNumber, address, paymentMethod, transactionId);
       cart = []; saveCart(); updateCartUI();
       sessionStorage.removeItem('lff_cart');
     } else {
       showToast(data.error || 'Order failed. Try again.');
     }
-  } catch (err) {
-    closeModal();
+  } catch {
     playOrderSound();
-    showSuccessFallback(customerName, phoneNumber, address);
+    showSuccessFallback(customerName, phoneNumber, address, paymentMethod, transactionId);
     cart = []; saveCart(); updateCartUI();
     sessionStorage.removeItem('lff_cart');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Order';
   }
 }
 
 // ── SUCCESS MODAL ────────────────────────────────────────
-function showSuccess(orderId, prepTime, name, phone, address) {
+function showSuccess(orderId, prepTime, name, phone, address, paymentMethod = 'cod', transactionId = '') {
   document.getElementById('orderIdDisplay').innerHTML =
     `<i class="fas fa-hashtag"></i> Order ID: <strong>${orderId}</strong>`;
   document.getElementById('prepTimeDisplay').innerHTML =
@@ -570,14 +679,14 @@ function showSuccess(orderId, prepTime, name, phone, address) {
   document.getElementById('successMsg').textContent =
     `Thank you ${name}! Your order has been received.`;
   document.getElementById('waConfirm').href =
-    `https://wa.me/${WA_NUMBER}?text=${buildWAMessage(orderId, name, phone, address)}`;
+    `https://wa.me/${WA_NUMBER}?text=${buildWAMessage(orderId, name, phone, address, paymentMethod, transactionId)}`;
   setTrackStep(0);
   document.getElementById('successOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
   startLiveTracker(orderId, prepTime);
 }
 
-function showSuccessFallback(name, phone, address) {
+function showSuccessFallback(name, phone, address, paymentMethod = 'cod', transactionId = '') {
   const fallbackId = 'FFC-' + Date.now();
   document.getElementById('orderIdDisplay').innerHTML =
     `<i class="fas fa-hashtag"></i> Order ID: <strong>${fallbackId}</strong>`;
@@ -586,7 +695,7 @@ function showSuccessFallback(name, phone, address) {
   document.getElementById('successMsg').textContent =
     `Thank you ${name}! Please confirm your order on WhatsApp.`;
   document.getElementById('waConfirm').href =
-    `https://wa.me/${WA_NUMBER}?text=${buildWAMessage(fallbackId, name, phone, address)}`;
+    `https://wa.me/${WA_NUMBER}?text=${buildWAMessage(fallbackId, name, phone, address, paymentMethod, transactionId)}`;
   setTrackStep(0);
   document.getElementById('successOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -602,16 +711,19 @@ function setTrackStep(step) {
   }
 }
 
-function buildWAMessage(orderId, name, phone, address) {
+function buildWAMessage(orderId, name, phone, address, paymentMethod, transactionId) {
   const items = lastOrderItems.map(i =>
     `• ${i.name} x${i.quantity} = ₹${i.price * i.quantity}`).join('\n');
   const total = lastOrderItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  const payLine = paymentMethod === 'upi'
+    ? `💳 Payment: Online (UPI/Card) ✅ Paid\nTransaction ID: ${transactionId}`
+    : `💵 Payment: Cash on Delivery`;
   return encodeURIComponent(
     `Hey Santosh, I ordered:\n\n` +
     `${items}\n\n` +
     `💰 Total: ₹${total}\n` +
     `📍 Address: ${address}\n` +
-    `💵 Payment: Cash on Delivery\n\n` +
+    `${payLine}\n\n` +
     `Please prepare the order and send it.\nThankyou! 🙏`
   );
 }
@@ -622,12 +734,13 @@ function closeSuccess() {
 }
 
 // ── GALLERY LIGHTBOX ────────────────────────────────────
-const lightbox      = document.getElementById('lightbox');
-const lightboxImg    = document.getElementById('lightboxImg');
+const lightbox     = document.getElementById('lightbox');
+const lightboxImg  = document.getElementById('lightboxImg');
 const lightboxClose = document.getElementById('lightboxClose');
 
 document.querySelectorAll('.gallery-item').forEach(item => {
   item.addEventListener('click', () => {
+    if (!lightboxImg || !lightbox) return;
     lightboxImg.src = item.querySelector('img').src;
     lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -637,7 +750,7 @@ document.querySelectorAll('.gallery-item').forEach(item => {
 if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
 if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeLightbox(); closeModal(); closeSuccess(); closeMyOrders(); }
+  if (e.key === 'Escape') { closeLightbox(); closeModal(); closeSuccess(); closeMyOrders(); closePaymentModal(); }
 });
 
 function closeLightbox() {

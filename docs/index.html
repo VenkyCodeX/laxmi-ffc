@@ -181,7 +181,7 @@
           <button class="spb-edit-btn" onclick="toggleProfileEdit()"><i class="fas fa-pen"></i> Edit</button>
         </div>
 
-        <form id="orderForm" onsubmit="submitOrder(event)">
+        <div id="orderForm">
           <div class="form-group">
             <label><i class="fas fa-user"></i> Your Name</label>
             <input type="text" id="custName" placeholder="Enter your full name"/>
@@ -231,10 +231,10 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary w-full" id="submitBtn" style="display:none">
-            <i class="fas fa-check-circle"></i> Confirm Order
+          <button type="button" class="btn btn-primary w-full" id="submitBtn" style="display:none;margin-bottom:70px" onclick="submitOrder()">
+            <i class="fas fa-check-circle"></i> Choose Payment & Confirm
           </button>
-        </form>
+        </div><!-- end orderForm -->
       </div>
     </div>
   </div>
@@ -255,6 +255,51 @@
           </div>
         </div>
         <div id="myOrdersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAYMENT METHOD MODAL -->
+  <div class="modal-overlay" id="paymentOverlay">
+    <div class="order-modal" id="paymentModal" style="max-width:420px">
+      <div class="modal-header">
+        <h3><i class="fas fa-credit-card"></i> Choose Payment</h3>
+        <button class="modal-close" onclick="closePaymentModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div id="paymentOrderAmt" style="text-align:center;font-size:1.4rem;font-weight:700;color:#ff6b35;margin-bottom:18px"></div>
+
+        <!-- COD -->
+        <div class="pay-option" onclick="selectPayment('cod')" style="display:flex;align-items:center;gap:14px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 18px;cursor:pointer;margin-bottom:12px;transition:border .2s">
+          <span style="font-size:2rem">💵</span>
+          <div>
+            <div style="font-weight:700;font-size:1rem">Cash on Delivery</div>
+            <div style="font-size:0.78rem;opacity:0.55;margin-top:2px">Pay when your order arrives</div>
+          </div>
+          <i class="fas fa-chevron-right" style="margin-left:auto;opacity:0.4"></i>
+        </div>
+
+        <!-- ONLINE UPI -->
+        <div style="font-size:0.78rem;opacity:0.5;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px">Pay Online via UPI</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div class="pay-option upi-card" onclick="selectPayment('phonepe')" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 10px;cursor:pointer;transition:border .2s">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.png/200px-PhonePe_Logo.png" style="width:44px;height:44px;object-fit:contain;border-radius:10px" alt="PhonePe"/>
+            <span style="font-size:0.8rem;font-weight:600">PhonePe</span>
+          </div>
+          <div class="pay-option upi-card" onclick="selectPayment('googlepay')" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 10px;cursor:pointer;transition:border .2s">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/200px-Google_Pay_Logo.svg.png" style="width:44px;height:44px;object-fit:contain;border-radius:10px" alt="Google Pay"/>
+            <span style="font-size:0.8rem;font-weight:600">Google Pay</span>
+          </div>
+          <div class="pay-option upi-card" onclick="selectPayment('paytm')" style="display:flex;flex-direction:column;align-items:center;gap:8px;background:#1a1a1a;border:2px solid #333;border-radius:14px;padding:16px 10px;cursor:pointer;transition:border .2s">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/200px-Paytm_Logo_%28standalone%29.svg.png" style="width:44px;height:44px;object-fit:contain;border-radius:10px" alt="Paytm"/>
+            <span style="font-size:0.8rem;font-weight:600">Paytm</span>
+          </div>
+        </div>
+
+        <div id="paymentProcessing" style="display:none;text-align:center;padding:20px 0">
+          <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#ff6b35"></i>
+          <p style="margin-top:10px;opacity:0.7">Opening payment...</p>
+        </div>
       </div>
     </div>
   </div>
@@ -483,6 +528,7 @@
     </a>
   </div>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="js/script.js"></script>
   <script>
     // Splash screen
