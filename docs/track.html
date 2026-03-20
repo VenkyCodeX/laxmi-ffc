@@ -210,16 +210,19 @@
     showResult('loading');
 
     try {
-      const res    = await fetch(`${API}/by-phone/${phone}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      const res    = await fetch(`${API}/by-phone/${phone}`, { signal: controller.signal });
+      clearTimeout(timeout);
       const orders = await res.json();
       if (!orders.length) { showResult('empty'); return; }
       renderOrders(orders);
-      // Start live polling for active orders
       orders.forEach(o => {
         if (o.orderStatus !== 'Completed') startLivePoll(o._id);
       });
-    } catch {
-      showResult('error', 'Could not connect. Check your internet.');
+    } catch (err) {
+      const isTimeout = err.name === 'AbortError';
+      showResult('error', isTimeout ? 'Server waking up (~30s). Please retry.' : 'Could not connect. Check your internet.');
     }
   }
 
@@ -402,11 +405,11 @@
   function showResult(type, msg) {
     const area = document.getElementById('resultArea');
     if (type === 'loading') {
-      area.innerHTML = `<div class="state-box"><i class="fas fa-spinner fa-spin"></i><p>Fetching orders...</p></div>`;
+      area.innerHTML = `<div class="state-box"><i class="fas fa-spinner fa-spin"></i><p>Fetching orders...</p><span>Server may take ~30s to wake up</span></div>`;
     } else if (type === 'empty') {
       area.innerHTML = `<div class="state-box"><i class="fas fa-receipt"></i><p>No orders found</p><span>No orders placed with this number yet.</span></div>`;
     } else {
-      area.innerHTML = `<div class="state-box"><i class="fas fa-exclamation-circle"></i><p>${msg}</p></div>`;
+      area.innerHTML = `<div class="state-box"><i class="fas fa-exclamation-circle"></i><p>${msg}</p><button onclick="trackOrders()" style="margin-top:14px;padding:10px 22px;background:#ff2b2b;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif"><i class="fas fa-sync-alt"></i> Retry</button></div>`;
     }
   }
 </script>

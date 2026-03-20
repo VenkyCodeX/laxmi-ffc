@@ -2,11 +2,14 @@
 const BACKEND   = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:5000'
   : 'https://laxmi-ffc-backend.onrender.com';
-const API_URL   = BACKEND + '/api/orders';
-const OTP_URL   = BACKEND + '/api/otp';
-const WA_NUMBER = '9321611315';
+const API_URL    = BACKEND + '/api/orders';
+const OTP_URL    = BACKEND + '/api/otp';
+const ITEMS_URL  = BACKEND + '/api/items';
+const WA_NUMBER  = '9321611315';
 const SHOP_OPEN  = 11;
 const SHOP_CLOSE = 23;
+const MIN_ORDER  = 50;
+const DELIVERY_CHARGE = 10;
 
 let appliedCoupon = null;
 
@@ -95,6 +98,7 @@ function removeFromCart(name) {
 }
 
 function getCartTotal() { return cart.reduce((s, i) => s + i.price * i.quantity, 0); }
+function getCartGrandTotal() { return getCartTotal() + (getCartTotal() > 0 ? DELIVERY_CHARGE : 0); }
 function getCartCount() { return cart.reduce((s, i) => s + i.quantity, 0); }
 
 function updateCartUI() {
@@ -120,7 +124,9 @@ function updateCartUI() {
   }
 
   cartFooter.style.display = 'block';
-  cartTotalEl.textContent  = `₹${getCartTotal()}`;
+  const rawTotal = getCartTotal();
+  const belowMin = rawTotal < MIN_ORDER;
+  cartTotalEl.textContent = `₹${rawTotal + DELIVERY_CHARGE}`;
   cartItemsEl.innerHTML = cart.map(item => `
     <div class="cart-item">
       <div style="flex:1">
@@ -132,7 +138,12 @@ function updateCartUI() {
         <span>${item.quantity}</span>
         <button onclick="addToCart('${item.name}',${item.price})"><i class="fas fa-plus"></i></button>
       </div>
-    </div>`).join('');
+    </div>`).join('') +
+    `<div style="margin-top:10px;padding:10px 0;border-top:1px solid #222;font-size:13px;opacity:0.7">
+      <div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>₹${rawTotal}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px"><span>🛵 Delivery</span><span>₹${DELIVERY_CHARGE}</span></div>
+    </div>` +
+    (belowMin ? `<div style="background:#ff2b2b22;border:1px solid #ff2b2b44;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:12px;color:#ff6b6b">⚠️ Minimum order is ₹${MIN_ORDER}. Add ₹${MIN_ORDER - rawTotal} more.</div>` : '');
 }
 
 // ── CART SIDEBAR TOGGLE ──────────────────────────────────
@@ -339,6 +350,19 @@ async function verifyOTP() {
 function showOrderForm() {
   if (!cart.length) { showToast('Add items to cart first!'); return; }
 
+  // Shop closed check
+  const hour = new Date().getHours();
+  if (hour < SHOP_OPEN || hour >= SHOP_CLOSE) {
+    showToast(`Shop is closed! Open ${SHOP_OPEN}AM – ${SHOP_CLOSE === 23 ? '11PM' : SHOP_CLOSE + 'AM'}`);
+    return;
+  }
+
+  // Minimum order check
+  if (getCartTotal() < MIN_ORDER) {
+    showToast(`Minimum order is ₹${MIN_ORDER}. Add ₹${MIN_ORDER - getCartTotal()} more.`);
+    return;
+  }
+
   const sidebar = document.getElementById('cartSidebar');
   const overlay = document.getElementById('cartOverlay');
   sidebar.classList.remove('open');
@@ -356,7 +380,8 @@ function _openOrderModal() {
         <span>${i.name} x${i.quantity}</span>
         <span>₹${i.price * i.quantity}</span>
       </div>`).join('')}
-    <div class="summary-total"><span>Total</span><span>₹${getCartTotal()}</span></div>`;
+    <div class="summary-item" style="opacity:0.6"><span>🛵 Delivery</span><span>₹${DELIVERY_CHARGE}</span></div>
+    <div class="summary-total"><span>Total</span><span>₹${getCartGrandTotal()}</span></div>`;
 
   appliedCoupon   = null;
   document.getElementById('orderForm').classList.remove('form-fields-locked');
@@ -461,16 +486,18 @@ function getDiscountedTotal() {
 function updateCartTotalWithDiscount() {
   const el = document.getElementById('orderSummary');
   if (!el || !appliedCoupon) return;
-  const raw         = getCartTotal();
+  const raw        = getCartTotal();
   const discounted = getDiscountedTotal();
   const existing   = el.querySelector('.summary-discount');
   if (existing) existing.remove();
+  // remove old payable line too
+  el.querySelectorAll('.summary-item[style*="font-weight:700"]').forEach(e => e.remove());
   el.insertAdjacentHTML('beforeend',
     `<div class="summary-discount summary-item" style="color:#4caf50">
       <span>Discount (${appliedCoupon.desc})</span><span>-₹${raw - discounted}</span>
     </div>
     <div class="summary-item" style="font-weight:700">
-      <span>Payable</span><span>₹${discounted}</span>
+      <span>Payable (incl. delivery)</span><span>₹${discounted + DELIVERY_CHARGE}</span>
     </div>`);
 }
 
@@ -495,9 +522,10 @@ async function submitOrder(e) {
   const orderData = {
     customerName, phoneNumber, address,
     itemsOrdered: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity })),
-    totalAmount: getDiscountedTotal(),
+    totalAmount: getDiscountedTotal() + DELIVERY_CHARGE,
     couponCode: appliedCoupon ? appliedCoupon.code : '',
-    discount:   appliedCoupon ? (getCartTotal() - getDiscountedTotal()) : 0
+    discount:   appliedCoupon ? (getCartTotal() - getDiscountedTotal()) : 0,
+    deliveryCharge: DELIVERY_CHARGE
   };
   appliedCoupon = null;
 
@@ -1012,11 +1040,83 @@ function applyLanguage(lang) {
   const waBtn = q('#waConfirm'); if (waBtn) waBtn.innerHTML = `<i class="fab fa-whatsapp"></i> ${t.waConfirmBtn}`;
 }
 
+// ── SOLD OUT ITEMS ───────────────────────────────────────
+let soldOutItems = new Set();
+
+async function loadSoldOutItems() {
+  try {
+    const res  = await fetch(ITEMS_URL);
+    const data = await res.json();
+    soldOutItems = new Set(data.filter(i => i.soldOut).map(i => i.name.toLowerCase()));
+    applySoldOutUI();
+  } catch {}
+}
+
+function applySoldOutUI() {
+  // menu.html cards
+  document.querySelectorAll('.mp-card').forEach(card => {
+    const name = card.dataset.name;
+    const btn  = card.querySelector('.mp-add-btn');
+    if (!btn) return;
+    const isSoldOut = soldOutItems.has(name);
+    btn.disabled = isSoldOut;
+    btn.innerHTML = isSoldOut ? '<i class="fas fa-ban"></i>' : '<i class="fas fa-plus"></i>';
+    btn.style.background = isSoldOut ? '#444' : '';
+    btn.title = isSoldOut ? 'Sold Out' : '';
+    let badge = card.querySelector('.sold-out-badge');
+    if (isSoldOut && !badge) {
+      badge = document.createElement('div');
+      badge.className = 'mp-badge sold-out-badge';
+      badge.style.cssText = 'background:#444;top:auto;bottom:12px;left:12px';
+      badge.textContent = '🚫 Sold Out';
+      card.querySelector('.mp-img-wrap').appendChild(badge);
+    } else if (!isSoldOut && badge) {
+      badge.remove();
+    }
+  });
+  // index.html popular cards
+  document.querySelectorAll('.popular-card').forEach(card => {
+    const h4 = card.querySelector('h4');
+    if (!h4) return;
+    const name = h4.textContent.toLowerCase();
+    if (soldOutItems.has(name)) {
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+      card.title = 'Sold Out';
+    } else {
+      card.style.opacity = '';
+      card.style.pointerEvents = '';
+      card.title = '';
+    }
+  });
+}
+
+// ── DARK / LIGHT MODE ────────────────────────────────────
+function initTheme() {
+  const saved = localStorage.getItem('lff_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next    = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('lff_theme', next);
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) btn.innerHTML = next === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+}
+
 // ── INIT ─────────────────────────────────────────────────
+initTheme();
 updateCartUI();
 updateShopStatus();
 updateUserLogoutBtn();
+loadSoldOutItems();
 (function() {
   const saved = localStorage.getItem('lff_lang');
   if (saved === 'hi') { isHindi = true; applyLanguage('hi'); }
+  // Update theme btn icon
+  const btn = document.getElementById('themeToggleBtn');
+  const theme = localStorage.getItem('lff_theme') || 'dark';
+  if (btn) btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
 })();
